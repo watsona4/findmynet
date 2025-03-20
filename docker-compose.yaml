@@ -1,7 +1,7 @@
 services:
   run-server:
-    image: run-server:latest
-    build: /home/watsam/testmynet
+    image: ghcr.io/watsona4/testmynet:latest
+    build: .
     restart: unless-stopped
     volumes:
       - .:/root/run-server/config

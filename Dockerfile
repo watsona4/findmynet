@@ -9,4 +9,6 @@ RUN apk update && apk add \
 
 COPY run_server.py .
 
+LABEL org.opencontainers.image.source=https://github.com/watsona4/testmynet
+
 CMD ["python3", "run_server.py"]
