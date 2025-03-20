@@ -1,0 +1,7 @@
+services:
+  run-server:
+    image: run-server:latest
+    build: /home/watsam/testmynet
+    restart: unless-stopped
+    volumes:
+      - .:/root/run-server/config
