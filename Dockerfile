@@ -1,11 +1,20 @@
-FROM alpine:latest
+FROM python:3.12-alpine AS builder
 
 WORKDIR /app
 
-RUN apk update && apk add \
-    speedtest-cli \
-    py3-yaml \
-    py3-paho-mqtt
+COPY requirements.txt .
+
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+FROM python:3.12-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/wheels /wheels
+
+RUN pip install --no-cache --break-system-packages /wheels/*
+
+RUN apk update && apk add speedtest-cli
 
 COPY run_server.py .
 
