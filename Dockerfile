@@ -14,9 +14,11 @@ COPY --from=builder /app/wheels /wheels
 
 RUN pip install --no-cache --break-system-packages /wheels/*
 
-RUN apk update && apk add speedtest-cli
+RUN apk update && apk add --no-cache mosquitto-clients speedtest-cli
 
-COPY run_server.py .
+COPY run_server.py healthcheck.sh ./
+
+HEALTHCHECK --interval=15m CMD ./healthcheck.sh
 
 LABEL org.opencontainers.image.source=https://github.com/watsona4/testmynet
 

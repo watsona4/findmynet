@@ -5,3 +5,5 @@ services:
     restart: unless-stopped
     volumes:
       - .:/root/run-server/config
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro

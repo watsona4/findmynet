@@ -1,8 +1,9 @@
-import os
 import json
 import logging
+import os
 import random
 import signal
+import sys
 import time
 from datetime import timedelta
 from subprocess import run
@@ -10,9 +11,7 @@ from subprocess import run
 import paho.mqtt.client as mqtt
 import yaml
 
-logging.basicConfig(
-    format="%(asctime)s [%(levelname)s]: %(message)s", level=logging.DEBUG
-)
+logging.basicConfig(format="%(asctime)s [%(levelname)s]: %(message)s", level=logging.DEBUG)
 
 path = "/root/run-server/config/config.yaml"
 if os.path.exists(path):
@@ -33,11 +32,20 @@ cmd = ["speedtest-cli", "--json"]
 
 logging.debug("cmd: %s", cmd)
 
-logging.info(
-    "Connecting to %s:%d", config["mqtt"]["server"], int(config["mqtt"]["port"])
-)
+logging.info("Connecting to %s:%d", config["mqtt"]["server"], int(config["mqtt"]["port"]))
+
+
+def on_healthcheck(client, userdata, message):
+    logging.info("Healthcheck requested...")
+    if message.payload.decode() == "CHECK":
+        client.publish("testmynet/healthcheck/status", "OK")
+
 
 client.connect(config["mqtt"]["server"], int(config["mqtt"]["port"]), 60)
+
+client.subscribe("testmynet/healthcheck/status")
+client.message_callback_add("testmynet/healthcheck/status", on_healthcheck)
+
 client.loop_start()
 
 
@@ -200,7 +208,8 @@ while True:
 
     logging.debug("message: %s", message)
 
-    client.publish("speedtest/status", message, retain=True)
+    if message:
+        client.publish("speedtest/status", message, retain=True)
 
     while True:
         x = random.randint(0, 2 * mean)
